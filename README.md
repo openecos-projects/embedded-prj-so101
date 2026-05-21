@@ -4,76 +4,25 @@
 
 ## System Architecture
 
-```text
-┌─────────────────────────────────────────────────┐
-│ Control Layer                                   │
-│  ┌──────────┐  ┌──────────────────────────┐     │
-│  │ PS2 Pad  │  │ Taishan Pi (K230 MicroPython) │
-│  └────┬─────┘  └───────────┬──────────────┘     │
-│       │                    │                     │
-│       ▼                    ▼                     │
-│  ┌──────────────────────────────┐               │
-│  │   RISC-V MCU (StarSky C2)    │               │
-│  │   - PS2 custom IP core       │               │
-│  │   - HP UART @ 1Mbps          │               │
-│  │   - Servo command protocol   │               │
-│  └──────────────┬───────────────┘               │
-│                 │ Half-duplex UART               │
-│                 ▼                                │
-│  ┌──────────────────────────────┐               │
-│  │  6× STS3215 Servos (ID 1-6)  │               │
-│  └──────────────────────────────┘               │
-└─────────────────────────────────────────────────┘
-```text
+![Gamepad Control](Architecture/gamepad_control.svg)
+
+![Vision Control](Architecture/vision_control.svg)
 
 ## Directory Structure
 
-```text
-├── mcu/                          # RISC-V firmware (gamepad control)
-│   └── SO-101_Robot/
-│       ├── main.c / main.h       # Main loop & servo control
-│       ├── board.h               # Memory-mapped peripheral registers
-│       ├── start.S / start.s     # Boot / ISR vectors
-│       ├── sections.lds          # Linker script
-│       ├── Makefile              # riscv64-unknown-elf- toolchain
-│       ├── configs/              # Kconfig-based hardware configuration
-│       ├── gamepad/              # PS2 gamepad driver
-│       │   ├── ps2_gamepad.c
-│       │   ├── ps2_gamepad.h
-│       │   └── README.md
-│       ├── scripts/              # Build & memory report helpers
-│       └── docs/                 # Peripheral API docs (GPIO, I2C, PWM, etc.)
-│
-├── taishan/                      # Taishan Pi vision control (Python)
-│   └── python/
-│       ├── libs/                 # AI pipeline (YOLO, AI2D, PipeLine)
-│       ├── examples/             # MicroPython SDK examples
-│       │   ├── 05-AI-Demo/       # Face / hand / object detection
-│       │   ├── 20-YOLO/          # YOLOv5/v8/v11 examples
-│       │   ├── 23-CV_Lite/       # OpenCV-lite image processing
-│       │   ├── kmodel/           # Pre-trained AI models (.kmodel)
-│       │   └── ...
-│       └── res/                  # Fonts & assets
-│
-├── tools/                        # Debug utilities
-│   └── servo_test/
-│       └── sts3215_test/         # Linux servo debug tool (UART)
-│
-├── hardware/                     # Hardware design files
-│   └── pcb/
-│
-├── Architecture/                 # System architecture diagrams
-│   ├── gamepad_control.svg
-│   └── vision_control.svg
-│
-└── docs/                         # Project documentation
-    └── architecture/
-```text
+```
+mcu/             RISC-V firmware (gamepad control)
+taishan/         Taishan Pi vision control (Python)
+tools/           Debug utilities (servo test)
+hardware/pcb/    PCB design files
+Architecture/    System architecture diagrams
+docs/            Project documentation
+```
 
 ## Hardware
 
 | Component | Description |
-| ---------- | ----------- |
+| --------- | ---------- |
 | **MCU** | StarSky C2 (RISC-V RV32IM) |
 | **Servos** | 6× STS3215 (TTL half-duplex UART, 1 Mbps) |
 | **Controller** | PS2 gamepad (custom IP core @ `0x20005000`) |
@@ -82,7 +31,7 @@
 ### Servo Calibration (6-DOF Arm)
 
 | ID | Joint | Min Pulse | Max Pulse | Home | Direction |
-| --- | ----- | --------- | --------- | ---- | --------- |
+| --- | ---- | --------- | --------- | ---- | --------- |
 | 1 | Base (L/R) | 640 | 3315 | 644 | +1 |
 | 2 | L1/L2 | 136 | 2511 | 137 | +1 |
 | 3 | R1/R2 | 716 | 2950 | 2950 | -1 |
@@ -108,13 +57,9 @@
 
 ```bash
 cd mcu/SO-101_Robot
-
-# Configure hardware options
-make menuconfig
-
-# Build firmware
-make
-```text
+make menuconfig   # Configure hardware options
+make              # Build firmware
+```
 
 Output files in `build/`:
 - `retrosoc_fw` — ELF executable
@@ -130,7 +75,7 @@ cd tools/servo_test/sts3215_test
 make
 ./servo_debug
 # Menu: 1=Home  2=Angle control  5=Status  6=Raw pulse
-```text
+```
 
 ## Control Modes
 
