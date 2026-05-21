@@ -14,7 +14,7 @@
 mcu/             RISC-V firmware (gamepad control)
 taishan/         Taishan Pi vision control (Python)
 tools/           Debug utilities (servo test)
-hardware/pcb/    PCB design files
+hardware/easyeda/ JLC EasyEDA project files
 Architecture/    System architecture diagrams
 ```
 
