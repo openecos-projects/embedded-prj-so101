@@ -16,7 +16,6 @@ taishan/         Taishan Pi vision control (Python)
 tools/           Debug utilities (servo test)
 hardware/pcb/    PCB design files
 Architecture/    System architecture diagrams
-docs/            Project documentation
 ```
 
 ## Hardware
