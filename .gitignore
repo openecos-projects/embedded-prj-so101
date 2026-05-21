@@ -1,0 +1,18 @@
+# Build artifacts
+build/
+*.o
+*.bin
+*.hex
+*.elf
+*.txt
+servo_debug
+sections.info
+retrosoc_fw*
+
+# IDE
+.vscode/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

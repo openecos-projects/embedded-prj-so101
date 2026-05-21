@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="780" font-family="monospace">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <rect x="10" y="10" width="640" height="40" rx="6" fill="#1a1a2e"/>
+  <text x="330" y="36" text-anchor="middle" fill="white" font-size="16" font-weight="bold">视觉控制机械臂 架构图</text>
+
+  <!-- Layer 1: Sensor -->
+  <rect x="10" y="62" width="640" height="70" rx="6" fill="#e3f2fd" stroke="#2196F3" stroke-width="1.5"/>
+  <text x="20" y="80" fill="#1565C0" font-size="11" font-weight="bold">[ 传感层 ]  摄像头 (K230 内置)</text>
+  <rect x="30" y="86" width="180" height="36" rx="4" fill="#BBDEFB" stroke="#1976D2"/>
+  <text x="120" y="101" text-anchor="middle" fill="#0D47A1" font-size="11" font-weight="bold">RGB888 摄像头</text>
+  <text x="120" y="116" text-anchor="middle" fill="#0D47A1" font-size="10">1920×1080 · 逐帧采集</text>
+  <rect x="240" y="86" width="180" height="36" rx="4" fill="#BBDEFB" stroke="#1976D2"/>
+  <text x="330" y="101" text-anchor="middle" fill="#0D47A1" font-size="11" font-weight="bold">AI2D 预处理</text>
+  <text x="330" y="116" text-anchor="middle" fill="#0D47A1" font-size="10">Pad+Resize → 512×512 / 256×256</text>
+  <rect x="450" y="86" width="180" height="36" rx="4" fill="#BBDEFB" stroke="#1976D2"/>
+  <text x="540" y="101" text-anchor="middle" fill="#0D47A1" font-size="11" font-weight="bold">NCHW 张量</text>
+  <text x="540" y="116" text-anchor="middle" fill="#0D47A1" font-size="10">uint8 · nncase_runtime</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="330" y1="132" x2="330" y2="152" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="340" y="145" fill="#555" font-size="10">图像帧</text>
+
+  <!-- Layer 2: AI Inference -->
+  <rect x="10" y="154" width="640" height="160" rx="6" fill="#fce4ec" stroke="#E91E63" stroke-width="1.5"/>
+  <text x="20" y="172" fill="#880E4F" font-size="11" font-weight="bold">[ 推理层 ]  K230 NPU · CanMV Python</text>
+
+  <rect x="30" y="178" width="185" height="60" rx="4" fill="#F8BBD0" stroke="#C2185B"/>
+  <text x="122" y="198" text-anchor="middle" fill="#880E4F" font-size="11" font-weight="bold">HandDetApp</text>
+  <text x="122" y="214" text-anchor="middle" fill="#880E4F" font-size="10">hand_det.kmodel (512×512)</text>
+  <text x="122" y="228" text-anchor="middle" fill="#880E4F" font-size="10">Anchor-based NMS → BBox</text>
+
+  <line x1="215" y1="208" x2="240" y2="208" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="240" y="178" width="185" height="60" rx="4" fill="#F8BBD0" stroke="#C2185B"/>
+  <text x="332" y="198" text-anchor="middle" fill="#880E4F" font-size="11" font-weight="bold">HandKPClassApp</text>
+  <text x="332" y="214" text-anchor="middle" fill="#880E4F" font-size="10">handkp_det.kmodel (256×256)</text>
+  <text x="332" y="228" text-anchor="middle" fill="#880E4F" font-size="10">21关键点 + 手势分类</text>
+
+  <line x1="425" y1="208" x2="450" y2="208" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="450" y="178" width="180" height="60" rx="4" fill="#F8BBD0" stroke="#C2185B"/>
+  <text x="540" y="198" text-anchor="middle" fill="#880E4F" font-size="11" font-weight="bold">关键点后处理</text>
+  <text x="540" y="214" text-anchor="middle" fill="#880E4F" font-size="10">21点 → BBox过滤</text>
+  <text x="540" y="228" text-anchor="middle" fill="#880E4F" font-size="10">手势分类输出</text>
+
+  <!-- Signal processing -->
+  <rect x="30" y="256" width="600" height="44" rx="4" fill="#F48FB1" stroke="#C2185B"/>
+  <text x="330" y="272" text-anchor="middle" fill="#1a1a2e" font-size="11" font-weight="bold">get_spatial_data()  空间坐标提取</text>
+  <text x="330" y="288" text-anchor="middle" fill="#1a1a2e" font-size="10">x,y: 归一化坐标  |  z: 手掌尺度  |  roll: 旋转角  |  grip: 拇食指距离</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="330" y1="314" x2="330" y2="334" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="340" y="327" fill="#555" font-size="10">fx,fy,fz,froll,fgrip (滤波后)</text>
+
+  <!-- Layer 3: IK -->
+  <rect x="10" y="336" width="640" height="150" rx="6" fill="#f3e5f5" stroke="#9C27B0" stroke-width="1.5"/>
+  <text x="20" y="354" fill="#6A1B9A" font-size="11" font-weight="bold">[ 解算层 ]  逆运动学 spatial_to_arm()</text>
+
+  <rect x="30" y="360" width="175" height="55" rx="4" fill="#E1BEE7" stroke="#7B1FA2"/>
+  <text x="117" y="378" text-anchor="middle" fill="#4A148C" font-size="11" font-weight="bold">底座旋转 ID1</text>
+  <text x="117" y="394" text-anchor="middle" fill="#4A148C" font-size="10">atan2(dx, dz) → θ_base</text>
+  <text x="117" y="408" text-anchor="middle" fill="#4A148C" font-size="10">[-70°,70°] → [3315,640]</text>
+
+  <rect x="235" y="360" width="175" height="55" rx="4" fill="#E1BEE7" stroke="#7B1FA2"/>
+  <text x="322" y="378" text-anchor="middle" fill="#4A148C" font-size="11" font-weight="bold">平面余弦IK ID2/3</text>
+  <text x="322" y="394" text-anchor="middle" fill="#4A148C" font-size="10">L1=135mm L2=147mm</text>
+  <text x="322" y="408" text-anchor="middle" fill="#4A148C" font-size="10">余弦定理 → 大臂/小臂角</text>
+
+  <rect x="440" y="360" width="190" height="55" rx="4" fill="#E1BEE7" stroke="#7B1FA2"/>
+  <text x="535" y="378" text-anchor="middle" fill="#4A148C" font-size="11" font-weight="bold">手腕解耦 ID4/5/6</text>
+  <text x="535" y="394" text-anchor="middle" fill="#4A148C" font-size="10">wrist=180-shoulder-elbow</text>
+  <text x="535" y="408" text-anchor="middle" fill="#4A148C" font-size="10">roll→ID5  grip→ID6</text>
+
+  <rect x="30" y="428" width="600" height="48" rx="4" fill="#CE93D8" stroke="#7B1FA2"/>
+  <text x="330" y="447" text-anchor="middle" fill="#1a1a2e" font-size="11" font-weight="bold">map_to_pulse()  线性映射 + 钳位</text>
+  <text x="330" y="464" text-anchor="middle" fill="#1a1a2e" font-size="10">角度→位置脉冲值(82~3926)  |  输出: "id1,id2,id3,id4,id5,id6\n"</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="330" y1="486" x2="330" y2="506" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="340" y="499" fill="#555" font-size="10">UART2 · 1Mbps · ASCII逗号分隔</text>
+
+  <!-- Layer 4: MCU -->
+  <rect x="10" y="508" width="640" height="90" rx="6" fill="#e8f5e9" stroke="#4CAF50" stroke-width="1.5"/>
+  <text x="20" y="526" fill="#1B5E20" font-size="11" font-weight="bold">[ 接收层 ]  MCU</text>
+  <rect x="30" y="532" width="185" height="52" rx="4" fill="#C8E6C9" stroke="#388E3C"/>
+  <text x="122" y="552" text-anchor="middle" fill="#1B5E20" font-size="11" font-weight="bold">hp_uart_recv() 逐字符</text>
+  <text x="122" y="568" text-anchor="middle" fill="#1B5E20" font-size="10">'\n' 触发帧解析</text>
+  <text x="122" y="582" text-anchor="middle" fill="#1B5E20" font-size="10">非数字/逗号自动丢弃</text>
+  <rect x="245" y="532" width="185" height="52" rx="4" fill="#C8E6C9" stroke="#388E3C"/>
+  <text x="337" y="552" text-anchor="middle" fill="#1B5E20" font-size="11" font-weight="bold">parse_and_execute()</text>
+  <text x="337" y="568" text-anchor="middle" fill="#1B5E20" font-size="10">手动ASCII→uint16解析</text>
+  <text x="337" y="582" text-anchor="middle" fill="#1B5E20" font-size="10">满6个才下发，防乱抖</text>
+  <rect x="460" y="532" width="170" height="52" rx="4" fill="#C8E6C9" stroke="#388E3C"/>
+  <text x="545" y="552" text-anchor="middle" fill="#1B5E20" font-size="11" font-weight="bold">send_servo_cmd()</text>
+  <text x="545" y="568" text-anchor="middle" fill="#1B5E20" font-size="10">0xFF 0xFF 二进制协议</text>
+  <text x="545" y="582" text-anchor="middle" fill="#1B5E20" font-size="10">13字节 · 钳位保护</text>
+
+  <!-- Arrow 4→5 -->
+  <line x1="330" y1="598" x2="330" y2="618" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Layer 5: Hardware -->
+  <rect x="10" y="620" width="640" height="70" rx="6" fill="#fff3e0" stroke="#FF9800" stroke-width="1.5"/>
+  <text x="20" y="638" fill="#E65100" font-size="11" font-weight="bold">[ 硬件层 ]  SO-ARM100 六轴串行舵机</text>
+  <text x="330" y="660" text-anchor="middle" fill="#BF360C" font-size="11">ID1: 底座旋转  ID2: 大臂  ID3: 小臂  ID4: 手腕俯仰  ID5: 手腕旋转  ID6: 夹爪</text>
+  <text x="330" y="678" text-anchor="middle" fill="#BF360C" font-size="10">半双工 UART 总线 · 1Mbps · 开机盲归位: {644,137,2950,2924,102,947}</text>
+
+  <!-- Legend -->
+  <rect x="10" y="702" width="640" height="68" rx="6" fill="#fafafa" stroke="#ccc"/>
+  <text x="20" y="720" fill="#333" font-size="10" font-weight="bold">数据流:</text>
+  <text x="20" y="738" fill="#555" font-size="10">摄像头帧 → NPU推理(手检测+关键点) → 空间坐标 → 滤波 → IK解算 → UART → MCU → 舵机</text>
+  <text x="20" y="756" fill="#555" font-size="10">通信: K230 UART2(pin5/6) ←→ MCU · 格式: "p1,p2,p3,p4,p5,p6\n"</text>
+</svg>
