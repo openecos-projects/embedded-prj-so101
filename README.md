@@ -4,7 +4,7 @@
 
 ## System Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │ Control Layer                                   │
 │  ┌──────────┐  ┌──────────────────────────┐     │
@@ -24,11 +24,11 @@
 │  │  6× STS3215 Servos (ID 1-6)  │               │
 │  └──────────────────────────────┘               │
 └─────────────────────────────────────────────────┘
-```
+```text
 
 ## Directory Structure
 
-```
+```text
 ├── mcu/                          # RISC-V firmware (gamepad control)
 │   └── SO-101_Robot/
 │       ├── main.c / main.h       # Main loop & servo control
@@ -68,12 +68,12 @@
 │
 └── docs/                         # Project documentation
     └── architecture/
-```
+```text
 
 ## Hardware
 
 | Component | Description |
-|-----------|-------------|
+| ---------- | ----------- |
 | **MCU** | StarSky C2 (RISC-V RV32IM) |
 | **Servos** | 6× STS3215 (TTL half-duplex UART, 1 Mbps) |
 | **Controller** | PS2 gamepad (custom IP core @ `0x20005000`) |
@@ -82,18 +82,18 @@
 ### Servo Calibration (6-DOF Arm)
 
 | ID | Joint | Min Pulse | Max Pulse | Home | Direction |
-|----|-------|-----------|-----------|------|-----------|
-| 1  | Base (L/R) | 640 | 3315 | 644 | +1 |
-| 2  | L1/L2 | 136 | 2511 | 137 | +1 |
-| 3  | R1/R2 | 716 | 2950 | 2950 | -1 |
-| 4  | Up/Down | 900 | 2924 | 2924 | -1 |
-| 5  | Triangle/X | 82 | 3926 | 102 | -1 |
-| 6  | Square/Circle | 926 | 2356 | 947 | +1 |
+| --- | ----- | --------- | --------- | ---- | --------- |
+| 1 | Base (L/R) | 640 | 3315 | 644 | +1 |
+| 2 | L1/L2 | 136 | 2511 | 137 | +1 |
+| 3 | R1/R2 | 716 | 2950 | 2950 | -1 |
+| 4 | Up/Down | 900 | 2924 | 2924 | -1 |
+| 5 | Triangle/X | 82 | 3926 | 102 | -1 |
+| 6 | Square/Circle | 926 | 2356 | 947 | +1 |
 
 ## Controls (PS2 Gamepad)
 
 | Button | Action |
-|--------|--------|
+| ------ | ------ |
 | D-Pad Left/Right | Joint 1 (Base rotation) |
 | D-Pad Up/Down | Joint 4 (Vertical) |
 | L1 / L2 | Joint 2 |
@@ -114,7 +114,7 @@ make menuconfig
 
 # Build firmware
 make
-```
+```text
 
 Output files in `build/`:
 - `retrosoc_fw` — ELF executable
@@ -130,12 +130,12 @@ cd tools/servo_test/sts3215_test
 make
 ./servo_debug
 # Menu: 1=Home  2=Angle control  5=Status  6=Raw pulse
-```
+```text
 
 ## Control Modes
 
 | Mode | Branch | Input | Status |
-|------|--------|-------|--------|
+| ---- | ------ | ----- | ------ |
 | Gamepad | `main` | PS2 controller → MCU | Active |
 | Vision | (planned) | Taishan Pi → MCU | In development |
 
